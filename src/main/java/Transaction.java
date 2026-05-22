@@ -2,11 +2,14 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class Transaction
-{
-    private enum Type {DEPOSIT, WITHDRAW, TRANSFER};
+public class Transaction {
+    private enum Type {DEPOSIT, WITHDRAW, TRANSFER}
 
-    private enum Status {PENDING, SUCCESS, FAILED};
+    ;
+
+    private enum Status {PENDING, SUCCESS, FAILED}
+
+    ;
 
     private final AtomicLong transactionIdGenerator = new AtomicLong(1);
 
