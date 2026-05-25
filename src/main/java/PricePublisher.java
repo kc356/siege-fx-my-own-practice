@@ -19,9 +19,8 @@ public class PricePublisher {
 
         private void drainLoop() {
             while (running) {
-                PriceData data = null;
                 try {
-                    data = queue.take();
+                    PriceData data = queue.take();
                     listener.onPrice(data.symbol, data.price);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -55,7 +54,7 @@ public class PricePublisher {
 
     public void publish(String symbol, BigDecimal price) {
         PriceData data = new PriceData(symbol, price);
-        for (Subscription sub: subscriptions) {
+        for (Subscription sub : subscriptions) {
             sub.queue.offer(data);
         }
     }
