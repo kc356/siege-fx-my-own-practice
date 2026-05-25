@@ -1,20 +1,21 @@
 import java.math.BigDecimal;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 public class PricePublisher {
+
+    private final Executor executor;
+
+    public PricePublisher() {
+        this.executor = Executors.newCachedThreadPool();
+    }
 
     private static class Subscription {
         final PriceListener listener;
         final BlockingQueue<PriceData> queue = new LinkedBlockingQueue<>(1000);
-        final Thread worker;
         volatile boolean running = true;
 
         Subscription(PriceListener listener) {
             this.listener = listener;
-            this.worker = new Thread(this::drainLoop);
-            this.worker.start();
         }
 
         private void drainLoop() {
@@ -31,7 +32,6 @@ public class PricePublisher {
 
         void stop() {
             running = false;
-            worker.interrupt();
         }
 
     }
@@ -39,7 +39,9 @@ public class PricePublisher {
     private final CopyOnWriteArrayList<Subscription> subscriptions = new CopyOnWriteArrayList<>();
 
     public void subscribe(PriceListener listener) {
-        subscriptions.add(new Subscription(listener));
+        Subscription sub = new Subscription(listener);
+        subscriptions.add(sub);
+        executor.execute(sub::drainLoop);
     }
 
     public void unsubcribe(PriceListener listener) {
