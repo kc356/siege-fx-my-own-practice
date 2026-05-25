@@ -18,7 +18,7 @@ public class PricePublisher {
             this.listener = listener;
         }
 
-        private void drainLoop() {
+        private void loop() {
             // 唔再靠 running flag,改睇 interrupt 狀態
             while (!Thread.currentThread().isInterrupted()) {
                 try {
@@ -43,7 +43,7 @@ public class PricePublisher {
     public void subscribe(PriceListener listener) {
         Subscription sub = new Subscription(listener);
         subscriptions.add(sub);
-        sub.future = pool.submit(sub::drainLoop);   // ← submit 攞返 Future
+        sub.future = pool.submit(sub::loop);   // ← submit 攞返 Future
     }
 
     public void unsubscribe(PriceListener listener) {
