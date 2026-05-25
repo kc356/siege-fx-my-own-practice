@@ -3,10 +3,10 @@ import java.util.concurrent.*;
 
 public class PricePublisher {
 
-    private final Executor executor;
+    private final ExecutorService pool;
 
     public PricePublisher() {
-        this.executor = Executors.newCachedThreadPool();
+        this.pool = Executors.newFixedThreadPool(4);
     }
 
     private static class Subscription {
@@ -41,10 +41,10 @@ public class PricePublisher {
     public void subscribe(PriceListener listener) {
         Subscription sub = new Subscription(listener);
         subscriptions.add(sub);
-        executor.execute(sub::drainLoop);
+        pool.execute(sub::drainLoop);
     }
 
-    public void unsubcribe(PriceListener listener) {
+    public void unsubscribe(PriceListener listener) {
         subscriptions.removeIf(subscription -> {
             if (subscription.listener.equals(listener)) {
                 subscription.stop();

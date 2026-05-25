@@ -53,7 +53,7 @@ public class PricePublisherTest {
         int afterFirst = count.get();
         assertEquals(1, afterFirst);
 
-        publisher.unsubcribe(listener);
+        publisher.unsubscribe(listener);
         publisher.publish("EURUSD", new BigDecimal("2.0"));
 
         Thread.sleep(200);
