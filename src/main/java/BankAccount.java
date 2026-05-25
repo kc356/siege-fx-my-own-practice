@@ -1,4 +1,5 @@
 import java.math.BigDecimal;
+import java.nio.charset.UnsupportedCharsetException;
 import java.time.Instant;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -101,6 +102,38 @@ public class BankAccount {
     private void validateAmount(BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Amount must be positive.");
+        }
+    }
+
+    public void transfer(BankAccount target, BigDecimal amount) {
+        validateAmount(amount);
+
+        BankAccount first = this.accountId < target.accountId ? this : target;
+        BankAccount second = this.accountId < target.accountId ? target : this;
+
+
+        first.lock.lock();
+        try {
+            second.lock.lock();
+            try {
+
+                checkActive();
+                target.checkActive();
+
+                if (balance.compareTo(amount) < 0) {
+                    throw new UnsupportedCharsetException("Not enough fund to transfer.");
+                }
+
+                balance = balance.subtract(amount);
+                target.balance = target.balance.add(amount);
+
+                target.fundsAvailbale.signalAll();
+            } finally {
+                second.lock.unlock();
+            }
+
+        } finally {
+            first.lock.unlock();
         }
     }
 
